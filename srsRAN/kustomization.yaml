@@ -5,6 +5,4 @@ resources:
   - nad.yaml
   - configmap.yaml
   - cu-deployment.yaml
-  # - cu-service.yaml
   - du-deployment.yaml
-  # - du-service.yaml
