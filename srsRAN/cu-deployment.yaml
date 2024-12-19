@@ -1,0 +1,57 @@
+# Source: srsran-5g/templates/cu-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysrsran-srsran-5g-cu
+  labels:
+    app.kubernetes.io/name: srsran-5g-cu
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: srsran-5g-cu
+  strategy:
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: srsran-5g-cu
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[
+            { "name": "n3network", "interface": "n3", "ips": [ "10.10.3.231/24" ] },
+            { "name": "midhaul-network", "interface": "f1", "ips": [ "10.10.5.1/24" ] }
+            ]'
+    spec:
+      containers:
+        - name: mysrsran-srsran-5g
+          image: forad/srsran5g:24_10
+          imagePullPolicy: 
+          command:
+            - srscu
+          args:
+            - -c 
+            - /tmp/cu.yml
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+            privileged: true
+          envFrom:
+          ports:
+            - name: gtpu
+              containerPort: 2152
+              protocol: UDP
+          volumeMounts:
+            - name: cu-config
+              mountPath: /tmp/cu.yml
+              subPath: cu-template.yml
+            - name: gnb-config
+              mountPath: /tmp/gnb.yml
+              subPath: gnb-template.yml
+      volumes:
+        - name: cu-config
+          configMap:
+            name: mysrsran-srsran-5g-cu-du-configs
+        - name: gnb-config
+          configMap:
+            name: mysrsran-srsran-5g-cu-du-configs

@@ -1,0 +1,24 @@
+# Source: srsran-5g/templates/cu-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysrsran-srsran-5g-cu-service
+  labels:
+    app.kubernetes.io/name: srsran-5g-cu
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    -
+      port: 2152
+      name: f1-up-port
+      protocol: UDP
+      targetPort: 2152
+    -
+      port: 38472
+      name: f1-cp-port
+      protocol: SCTP
+      targetPort: 38472
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: srsran-5g-cu

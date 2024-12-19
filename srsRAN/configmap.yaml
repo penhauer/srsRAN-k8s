@@ -1,0 +1,202 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysrsran-srsran-5g-cu-du-configs
+  labels:
+    app.kubernetes.io/name: srsran-5g
+    helm.sh/chart: srsran-5g-1.0.0
+    app.kubernetes.io/instance: mysrsran
+    app.kubernetes.io/managed-by: Helm
+data:
+  gnb-template.yml: |
+    cu_cp:
+      amf:
+        addr: 10.10.3.200
+        port: 38412
+        bind_addr: 10.10.3.231
+        sctp_nodelay: true
+    
+        sctp_rto_initial: 120
+        sctp_rto_min: 120
+        sctp_rto_max: 500
+        no_core: false
+    
+        supported_tracking_areas:
+          - tac: 1
+            plmn_list:
+              - plmn: "00101"
+                tai_slice_support_list:
+                  - sst: 1
+                    sd: 000001
+                  - sst: 2
+                    sd: 000002
+    
+    ru_sdr:
+      device_driver: uhd
+      device_args: type=x300,product=X310,master_clock_rate=184.32e6,dboard_clck_rate=92.16e6,send_frame_size=8000,recv_frame_size=8000
+      srate: 46.08
+      tx_gain: 31
+      rx_gain: 20
+      otw_format:   
+    
+    cell_cfg:
+      dl_arfcn: 627340
+      band: 78
+      channel_bandwidth_MHz: 40
+      common_scs: 30
+      plmn: 00101
+      tac: 1
+      pci: 1
+    
+    e2:
+      enable_cu_e2: true
+      enable_du_e2: true
+      addr: 129.97.168.82
+      port: 36421
+      bind_addr: 129.97.168.82
+      sctp_rto_initial: 120
+      sctp_rto_min: 120
+      sctp_rto_max: 500
+      sctp_init_max_attempts: 3
+      sctp_max_init_timeo: 500
+      e2sm_kpm_enabled: false
+      e2sm_rc_enabled: false
+    
+    slicing:
+    
+    
+    log:  
+      filename: ./gnb.log
+      all_level: info
+      hex_max_size: 0
+    
+    pcap:
+      mac_enable: false
+      mac_filename: ./gnb_mac.pcap
+      ngap_enable: false
+      ngap_filename: ./gnb_ngap.pcap
+
+  cu-template.yml: |
+    cu_cp:
+    
+      f1ap:
+        bind_addr: 10.10.5.1
+        procedure_timeout: 1000
+    
+      amf:
+        addr: 10.10.3.200
+        port: 38412
+        bind_addr: 10.10.3.231
+        sctp_nodelay: true
+    
+        sctp_rto_initial: 120
+        sctp_rto_min: 120
+        sctp_rto_max: 500
+        no_core: false
+    
+        supported_tracking_areas:
+          - tac: 1
+            plmn_list:
+              - plmn: "00101"
+                tai_slice_support_list:
+                  - sst: 1
+                    sd: 000001
+                  - sst: 2
+                    sd: 000002
+ 
+ 
+    cu_up:
+ 
+      upf:
+        bind_addr: auto
+        ext_addr: auto
+ 
+      nru:                             
+        bind_addr: 10.10.5.1
+        # ext_addr:
+ 
+ 
+    log:
+      filename: /tmp/cu.log
+      all_level: warning                    
+ 
+ 
+    pcap:
+      e2ap_filename: /tmp/gnb_e2ap.pcap    
+      e2ap_enable: false                   
+      ngap_filename: /tmp/gnb_ngap.pcap    
+      ngap_enable: false                   
+      f1ap_filename: /tmp/gnb_f1ap.pcap    
+      f1ap_enable: false                   
+      n3_filename: /tmp/gnb_n3.pcap        
+      n3_enable: false                     
+      f1u_filename: /tmp/gnb_f1u.pcap      
+      f1u_enable: false
+      e1ap_filename: /tmp/gnb_e1ap.pcap
+      e1ap_enable: false
+    
+    metrics:
+      cu_cp_statistics_report_period: 1
+      cu_up_statistics_report_period: 1
+      pdcp_report_period: 0
+ 
+
+  du-template.yml: |
+    f1ap:
+      cu_cp_addr: 10.10.5.1
+      bind_addr: 10.10.5.2
+ 
+    nru:
+      bind_addr: 10.10.5.2
+  
+    ru_sdr:
+      device_driver: uhd
+      device_args: type=x300,product=X310,master_clock_rate=184.32e6,dboard_clck_rate=92.16e6,send_frame_size=8000,recv_frame_size=8000
+      clock: internal
+      sync: internal
+      srate: 46.08
+      freq_offset: 0
+      clock_ppm: 0
+      lo_offset: 0
+      tx_gain: 31.5
+      rx_gain: 20
+      time_alignment_calibration: auto
+ 
+ 
+    cell_cfg:
+      dl_arfcn: 627340
+      band: 78
+      channel_bandwidth_MHz: 40
+      common_scs: 30
+      plmn: "00101"
+      tac: 1
+      pci: 1
+ 
+ 
+    log: 
+      filename: /tmp/du.log
+      all_level: warning                    
+    
+    pcap: 
+      e2ap_filename: /tmp/gnb_e2ap.pcap
+      e2ap_enable: false              
+      f1ap_filename: /tmp/gnb_f1ap.pcap
+      f1ap_enable: false             
+      f1u_filename: /tmp/gnb_f1u.pcap 
+      f1u_enable: false              
+      rlc_filename: /tmp/gnb_rlc.pcap     
+      rlc_rb_type: all                   
+      rlc_enable: false                 
+      mac_filename: /tmp/gnb_mac.pcap  
+      mac_type: udp
+      mac_enable: false
+    
+    
+    metrics: 
+      addr: 127.0.0.1
+      port: 55555
+      rlc_report_period: 1000
+      rlc_json_enable: false
+      enable_json_metrics: false
+      autostart_stdout_metrics: false
+  
