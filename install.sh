@@ -1,24 +1,5 @@
 #!/bin/bash
 
-print_subheader() {
-    echo -e "\e[1;36m--- $1 ---\e[0m"
-}
-
-print_header() {
-    echo -e "\n\e[1;34m############################### $1 ###############################\e[0m"
-}
-
-print_success() {
-    echo -e "\e[1;32m$1\e[0m"
-}
-
-print_error() {
-    echo -e "\e[1;31mERROR: $1\e[0m"
-}
-
-print_info() {
-    echo -e "\e[1;33mINFO: $1\e[0m"
-}
 
 setup-ovs-bridges() {
   if [ -x "$(command -v ovs-vsctl)" ]; then
@@ -38,8 +19,26 @@ setup-ovs-bridges() {
   sudo ovs-vsctl --may-exist add-br fronthaul-br
 }
 
-create-ran-namespace
+connect-usrp-interface-to-bridge() {
+  USRP_ADDRESS=$(uhd_find_devices 2> /dev/null | grep addr | awk '{ print $2} ') # "192.168.40.2"
+  USRP_SUBNET=$(echo "${USRP_ADDRESS}" | grep -E '^[0-9]*\.[0-9]*\.[0-9]*' -o ) # "192.168.40"
+  USRP_INTERFACE=$(ip -br a | grep "${USRP_SUBNET}" | awk '{ print $1 }' )
+
+  # Add the usrp's interface as a port to fronthaul-br
+  sudo ovs-vsctl add-port fronthaul-br "${USRP_INTERFACE}"
+
+  timer-sec 5
+  # add an ip address to fronthaul-br interface so usrp is findable in the host
+  sudo ip address add "${USRP_SUBNET}.123" dev fronthaul-br
+  sudo ip link set fronthaul-br up
+}
+
+source common.sh
+
+kubectl create namespace ran 2> /dev/null
+
 setup-ovs-bridges
+connect-usrp-interface-to-bridge
 
 kubectl apply -k ./srsRAN -n ran
 
