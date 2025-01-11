@@ -22,7 +22,7 @@ for other 5G core deployments.
 All you need to do is to run the ```install.sh``` script. This will create a midhaul bridge for F1 interface as an ovs bridge. Since the open source RAN softare is not mature enough as of now, 
 deploying F1 interface with Kubernetes primiteves like Service was more complicated, and we resorted to using ovs as a workaround. Also, fronthaul is created as an ovs bridge 
 named ```fronthaul-br```.  Two ports are added to ```fronthaul-br```, one connecting the bridge to the USRP interface on the host and the other to an interface in the DU pod. 
-This enables the `uhd_fine_devices` to find the USRP inside the Kubernetes pod, without being attached to host's network. The installation script using 
+This enables the `uhd_find_devices` to find the USRP inside the Kubernetes pod, without being attached to host's network. The installation script using 
 `uhd_find_devices` to find the USRP interface, hence, UHD is needed before running the script.
 
 Please refer to [this page](https://files.ettus.com/manual/page_install.html) for UHD installation. Alternatively, you can install it the following packages:
